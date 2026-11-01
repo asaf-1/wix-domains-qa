@@ -1,0 +1,12 @@
+{
+  // For the editor's type checks only. Playwright runs the tests without it.
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "noEmit": true,
+    // Lets the editor know Node's built-ins, like process.env.
+    "types": ["node"]
+  }
+}
