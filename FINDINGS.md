@@ -13,8 +13,8 @@ Priority weighs severity against how often it happens, how visible it is, and ho
 | 1 | Public API answers without a valid API key | Medium | P2 |
 | 2 | Pricing call fails → storefront shows static USD prices to an Israeli visitor | Medium | P3 |
 | 3 | Public API docs don't match the API's behavior (6 mismatches) | Low | P2 |
-| 4 | Storefront rejects a pasted URL with a misleading message | Low | P3 |
-| 5 | Length error message is off by one | Low | P3 |
+| 4 | Storefront input messages mislead: a pasted URL is "invalid", and the length limit is off by one | Low | P3 |
+| 5 | Suggest Domains paging says "no next page" although more suggestions exist | Medium | P2 |
 
 ---
 
@@ -107,39 +107,62 @@ prices until the live call returns.
 
 ---
 
-## 4. The storefront rejects a pasted URL with a misleading message
+## 4. The storefront's input messages mislead the user
 
-**Steps:** on `www.wix.com/domains`, search for `https://google.com/`.
+Two small issues with the same root: the input check on the results page.
 
-**Expected:** remove `https://` and the path, the way the storefront already removes `www.`, and answer
-"google.com is already registered". The WHOIS page on the same site accepts *"a domain name or URL"*.
+**a) A pasted URL is called "invalid".** Search for `https://google.com/` on `www.wix.com/domains`.
+- **Expected:** strip `https://` and the path, the way the storefront already strips `www.`, and answer
+  "google.com is already registered". The WHOIS page on the same site accepts *"a domain name or URL"*.
+- **Actual:** *"Domains can only contain English letters, numbers, periods and hyphens."* The network tab
+  shows **no availability check at all**, only suggestions ("Best Match: globalgoogle.org"). The user never
+  learns whether google.com is taken.
 
-**Actual:** *"Domains can only contain English letters, numbers, periods and hyphens."* The network tab
-shows **no availability check at all**, only suggestions ("Best Match: globalgoogle.org"). The user never
-learns whether google.com is taken.
-
-![url input](evidence/f4-url-input.png)
-
-**Severity: Low.** The workaround is easy: delete `https://`. **Priority: P3.**
-
----
-
-## 5. The length error message is off by one
-
-**Steps:** search for a name with a 64-letter label, then one with a 63-letter label.
+**b) The length message is off by one.** Search for a name with a 63-letter label, then a 64-letter one.
 
 | Label length | Result |
 |---|---|
 | 63 | "Available now!", so it's accepted |
-| 64 | *"Domains should contain **fewer than 63** characters."* |
+| 64 | *"Domains should contain **fewer than 63** characters."* That means 62 is the maximum, yet 63 was accepted. |
 
-**Expected:** the message states the real limit: "63 characters or fewer".
+| Pasted URL | 64 characters |
+|---|---|
+| ![url input](evidence/f4-url-input.png) | ![64 characters](evidence/f4-64-characters.png) |
 
-**Actual:** "fewer than 63" means 62 is the maximum, but 63 is accepted.
+**Severity: Low.** The workarounds are easy (delete `https://`, shorten the name), and only the wording is wrong.
+**Priority: P3.**
 
-![64 characters](evidence/f5-64-characters.png)
+---
 
-**Severity: Low** (wording only). **Priority: P3.**
+## 5. Suggest Domains paging says "no next page" although more suggestions exist
+
+**Where:** `GET www.wixapis.com/domain-search/v2/suggest-domains`
+
+**Steps:**
+```bash
+curl "https://www.wixapis.com/domain-search/v2/suggest-domains?query=coffee&paging.limit=5"   # + key headers
+curl "https://www.wixapis.com/domain-search/v2/suggest-domains?query=coffee&paging.limit=20"  # + key headers
+```
+
+**Expected:** if 20 suggestions exist, a page of 5 says `hasNext: true` and returns a `next` cursor.
+`paging` is the documented way to page, because `limit` is deprecated.
+
+**Actual:**
+
+| Query | `paging.limit=5` | `paging.limit=20` |
+|---|---|---|
+| `coffee` | 5 results, `hasNext: false`, no cursor | **20 results**, `hasNext: false` |
+| `bakery` | 5 results, `hasNext: false`, no cursor | **20 results**, `hasNext: false` |
+| `my bakery` (two words) | 5 results, `hasNext: true`, cursor ✓ | n/a |
+
+The single-word queries I tried never return a next page, while a two-word query does.
+
+**Severity: Medium.** It fails silently: a partner that pages the documented way thinks it has seen
+every suggestion, and shows its users only the first page. The workaround is to ask for one big page
+(`paging.limit` up to 50), but nothing tells the partner to do that.
+
+**Priority: P2.** It affects every partner that pages, and it's invisible without a test like the one in
+`tests/api/suggest-domains.spec.ts` ("hasNext is true when more suggestions exist", marked as a known failure).
 
 ---
 
