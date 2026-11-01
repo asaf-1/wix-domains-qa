@@ -1,6 +1,6 @@
 # Wix Domains: QA home assignment
 
-**Time spent:** Approximately 3hrs
+**Time spent:** Approximately 2hrs
   
 How Wix answers "Can I get this name?" through four doors, and how I'd own its quality.
 
