@@ -173,6 +173,11 @@ every suggestion, and shows its users only the first page. The workaround is to 
   This isn't a bug, since it is disclosed. But the crossed-out "₪21.47/yr" reads like the normal yearly price,
   and touch screens have no hover. I'd raise it with product and legal.
   ([screenshot](evidence/obs-renewal-tooltip.png))
+- **WHOIS dates change with the viewer's timezone.** The RDAP record says google.com was created
+  `1997-09-15T04:00Z` and expires `2028-09-14T04:00Z`. From Israel or UTC, the page shows Sep 15, 1997 and
+  Sep 14, 2028. With the browser set to Los Angeles, it shows **Sep 14, 1997 and Sep 13, 2028**.
+  Registries record dates in UTC, so an American visitor sees the *expiry* a day early, and a different date
+  than other WHOIS tools show. Low severity; I'd show UTC dates. (The WHOIS test pins UTC.)
 - **Wasted calls on every visit:**
   - Every logged-out search calls `user_domains`, which returns **401**.
   - The storefront and WHOIS pages call `getUserDetails` on a path that returns **404** on every load.
