@@ -58,4 +58,4 @@ Kept while working, not written at the end.
   `.env` for a manual call, and switched to a call that needed no key.
 - Checking the live pages myself. 
 - The final review of every file before submitting. 
-- Severity and priority. The agent proposed one for each finding, with a reason, the final call was mine: I reviewed all 5 and approved them.
+- Severity and priority, was judged based on the TC in hand.  

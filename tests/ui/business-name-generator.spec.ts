@@ -10,6 +10,7 @@ test.beforeEach(async ({ context }) => {
 // Opens the results page that the generator's "Generate Names" button leads to (see ARCHITECTURE.md).
 // The names are AI-generated and different every time, so the test reads them from the response
 // and checks that the screen shows them, instead of expecting fixed names.
+// todo: add a test that the "Generate Names" button actually works, and that the page shows the new names.
 test.describe('Business Name Generator', () => {
   test('a business description gets 9 names, and domains for the first name', async ({ page }) => {
     const generated = page.waitForResponse((r) => r.url().includes('/business-names/generate'));

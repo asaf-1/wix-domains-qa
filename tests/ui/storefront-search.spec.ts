@@ -9,6 +9,7 @@ test.beforeEach(async ({ context }) => {
 // Search from the storefront's main search box, the way a visitor does.
 // Returns the two backend answers the results page is built from (see ARCHITECTURE.md),
 // so each test can check that the screen matches what the backend said.
+// to-do: add a test that the "Search Domains" button actually works, and that the page shows the new results.
 async function searchFromStorefront(page: Page, term: string) {
   // The HTML arrives before the page's code is running, and a click that early does nothing.
   // The page's code calls display-prices as soon as it starts, so that call means "ready".
