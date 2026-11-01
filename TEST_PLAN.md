@@ -128,12 +128,14 @@ often. The answer itself comes from the API layer, which is stable and cheap to 
 
 ## 6. What I automate now, and what stays manual
 
-**Automated in this repo:** D1–D3 and D5 (API contract), B1 and B2 (consistency), A1 and A2 on the storefront.
+**Automated in this repo:** D1–D3 and D5 (API contract), B1 and B2 (consistency), A1 and A2 on the
+storefront, the basics of F (the generator shows its 9 names and domains for the selected one) and the
+basics of G (a registered domain's record; a free name leads to the buy flow).
 - They protect the P0 answer.
 - They're stable because they assert rules, not data.
 - They're cheap: about 25 API calls per run.
 
-**Manual:** C2 and C3 (price honesty), E (input display), F (name quality), G, and the UI look.
+**Manual:** C2 and C3 (price honesty), E (input display), F (name quality), the rest of G, and the UI look.
 - These need judgement, or depend on data that changes too much for a reliable assertion.
 
 ## 7. Constraints
