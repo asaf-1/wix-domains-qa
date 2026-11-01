@@ -1,0 +1,16 @@
+# Secrets: the API key and account ID live only in .env
+.env
+.env.*
+!.env.example
+
+node_modules/
+
+# Playwright output. Traces record request headers, which include the API key.
+test-results/
+playwright-report/
+
+# Browser network captures contain cookies
+*.har
+
+# Private working notes, not part of the submission
+docs/md/PLAN.md
