@@ -9,19 +9,20 @@ Kept while working, not written at the end.
 - Agent configuration committed in this repo:
   - [`CLAUDE.md`](CLAUDE.md): rules for the agent (no purchases, API budget, no secrets, assert rules not data)
   - [`.claude/settings.json`](.claude/settings.json): blocks the agent from reading `.env`
+  - [`.claude/skills/live-change/SKILL.md`](.claude/skills/live-change/SKILL.md): a skill for live changes. It explains each step out loud, makes the smallest change, runs only that test, and stops before committing.
 
 ## Key prompts
 
-1. *"Create a plan for this"*, with the full assignment pasted in. The result was a phased plan with time
-   boxes, kept private and not committed. I asked for a plain-English version and a section on preparing
-   for the presentation.
-2. *"Now follow it."* The agent executed the plan phase by phase while I answered questions and corrected it.
+1. *"Create a plan for the followling assignment"*, with the full assignment pasted in. The result was a phased plan with time
+   boxes, kept private and not committed.
+2. *"divide the plan to phases."* The agent executed the plan phase by phase while I answered questions and corrected it.
 3. Corrections given mid-way:
-   - *"Follow the instructions they're asking, no need to copy [my other repos]"*
-   - *"The diagram can be Mermaid"*
-   - *"Give me the URLs, I'll check it myself"*
-   - *"Maybe put the .md files in a docs folder?"* The agent recommended keeping them at the root, where the
-     assignment names them. ✍️ _my decision:_
+   - *"Follow the instructions they're asking, no need to copy [my other repos], before each write provide explanation"*
+   - *"The diagram can be in Mermaid format"*
+   - *"provide the URLs, I'll check it each one"*
+   - *"Add tests for the Name Generator and WHOIS too as an extra with explanation on each"*, so all four doors are automated, not only the required API + one web door.
+   - *"Don't stage, commit or push before I approve."* From then on, commits stayed local until I had reviewed them.
+
 
 ## Where the AI was wrong, and how it was caught
 
@@ -46,6 +47,7 @@ Kept while working, not written at the end.
 - The exploration scripts (network recorder, tooltip probes) stay out of the repo. They were one-off, and
   their raw output contains session tokens.
 - Removed `npm init` defaults from `package.json` that nothing used.
+- The 5-line quality strategy in the README started from an AI draft; I reviewed it and kept it.
 
 ## What I did not hand to AI
 
@@ -54,7 +56,6 @@ Kept while working, not written at the end.
 - The key itself. It was never pasted into the chat. The agent first checked only its length, and later my
   `.env` deny rule blocked it from reading the file at all. It hit that block once, when it tried to read
   `.env` for a manual call, and switched to a call that needed no key.
-- Checking the live pages myself (the URLs it listed for me). ✍️ _what I saw:_
-- The 5-line quality strategy in the README. ✍️ _(written by me)_
-- The final review of every file before submitting. ✍️ _(what I changed in review:)_
-- Severity and priority. The agent proposed each one with a reason. ✍️ _(which I kept or changed, and why:)_
+- Checking the live pages myself. 
+- The final review of every file before submitting. 
+- Severity and priority. The agent proposed one for each finding, with a reason, the final call was mine: I reviewed all 5 and approved them.

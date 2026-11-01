@@ -1,7 +1,7 @@
 # Wix Domains: QA home assignment
 
-**Time spent:** ✍️ _TO FILL: prep before the first commit + build (16:01 to my last commit, see the commit log) + my review time._
-
+**Time spent:** Approximately 3hrs
+  
 How Wix answers "Can I get this name?" through four doors, and how I'd own its quality.
 
 | File | What's in it |
@@ -10,7 +10,7 @@ How Wix answers "Can I get this name?" through four doors, and how I'd own its q
 | [TEST_PLAN.md](TEST_PLAN.md) | Scope, ranked risks, approach, and what I left out and why |
 | [FINDINGS.md](FINDINGS.md) | 5 findings with evidence, severity and priority, plus observations |
 | [AI_LOG.md](AI_LOG.md) | How I used AI, where it was wrong, and what I didn't hand to it |
-| [CLAUDE.md](CLAUDE.md), [.claude/settings.json](.claude/settings.json) | Rules for the AI agent, and a rule blocking it from reading `.env` |
+| [CLAUDE.md](CLAUDE.md), [.claude/settings.json](.claude/settings.json), [.claude/skills/live-change](.claude/skills/live-change/SKILL.md) | Rules for the AI agent, a rule blocking it from reading `.env`, and a skill for safe live changes |
 
 ## How to run the tests
 
@@ -36,14 +36,14 @@ npm test                 # everything: API + UI, about 20 seconds
 (FINDINGS.md #1 and #5), marked as expected failures with `test.fail()`. If one of them ever "passes",
 Wix has changed that behavior and the report will flag it.
 
-**Without a key:** the API and cross-door tests are skipped with a clear message. The storefront tests
-and the auth tests still run.
+**Without a key:** the API and cross-door tests are skipped with a clear message. The browser tests
+(storefront, name generator, WHOIS) and the auth tests still run.
 
 **Good to know:**
 - The tests run against **production**.
 - Prices and some suggestions depend on where you run from. The tests check formats and rules,
   not amounts, so they pass from anywhere.
-- One full run makes about **27 public API calls**. Building this repo (exploration + test runs) used about 85.
+- One full run makes about **27 public API calls**. Building this repo (exploration + test runs) used about 110.
 
 ## What I automated, and why
 
@@ -51,6 +51,8 @@ and the auth tests still run.
 |---|---|---|
 | **Public API contract** | 18 in `tests/api/` | The answer to "can I get it?" lives here, and every door uses the same service (ARCHITECTURE.md). Fast (seconds) and stable. Covers happy paths, the documented errors, limits, paging, and a "suggested ⇒ really available" cross-check. |
 | **Storefront** (one web door) | 2 in `tests/ui/` | The main door most users use. Covers the taken and free states. Each screen is checked **against the backend response the page received**, so a mismatch between data and screen is caught. |
+| **Business Name Generator** | 1 in `tests/ui/` | The names are AI-generated, so the test reads them from the response and checks that all 9 are on screen, and that domains are suggested for the first name. It never expects fixed names. |
+| **WHOIS** | 2 in `tests/ui/` | A registered domain shows its real creation date, from the public RDAP record. A free name has no record and leads to the buy page. The timezone is pinned to UTC (see the observations in FINDINGS.md). |
 | **Cross-door consistency** | 2 in `tests/cross-door/` | The core risk in my test plan: the public API and the storefront must give the same verdict for the same name. |
 
 **Choices I can defend:**
@@ -69,9 +71,8 @@ and the auth tests still run.
   waits for the page's own pricing call as the "ready" signal, instead of a fixed wait.
 
 **Not automated (yet), and why:**
-- Business Name Generator: the names are AI-generated, so quality is a judgement call.
-- WHOIS: lower risk, since it parses public RDAP data.
-- Price honesty: a judgement call; see the observations in FINDINGS.md.
+- Whether the generated names are *good*: a judgement call, not a pass/fail rule.
+- Price honesty: also a judgement call; see the observations in FINDINGS.md.
 - Other countries: I can only run from Israel.
 
 ## Repo layout
@@ -81,7 +82,7 @@ src/api/domainSearchClient.ts   the two endpoints, the call budget, the auth hea
 src/data/testDomains.ts         taken name, random free name, hostname rule
 src/ui/blockPurchase.ts         the "never reach checkout" route guard
 tests/api/                      contract, auth, and paging tests
-tests/ui/                       storefront search
+tests/ui/                       storefront, name generator and WHOIS
 tests/cross-door/               the API and the storefront agree
 evidence/                       screenshots used in FINDINGS.md
 ```
@@ -92,8 +93,8 @@ evidence/                       screenshots used in FINDINGS.md
    kept as an artifact.
 2. **Two locations** (Israel + US runners): currency, TLD order and `.co.il` suggestions, and the same price
    for the same domain across doors.
-3. **Name generator + WHOIS automation:** 9 names, suggestions really available, and WHOIS dates checked
-   against the public RDAP record as an independent source.
+3. **Deeper name generator and WHOIS tests:** "Generate more names" never repeats a name, offensive input is
+   handled, and WHOIS dates are checked against the public RDAP record for many TLDs, not just .com.
 4. **Fault-injection UI tests:** block the pricing, labels and suggest calls one at a time. This turns
    finding #2 into a regression test.
 5. **Schema checks** built from the published docs. They would have caught `UNKNOWN_PREMIUM_TYPE` automatically.
@@ -102,6 +103,10 @@ evidence/                       screenshots used in FINDINGS.md
 8. **A production monitor:** a known-taken name and a random free name every 5 minutes, with an alert on a
    wrong answer.
 
-## My quality strategy for Wix Domains, in 5 lines
+##  My quality strategy for Wix Domains, in 5 lines
 
-✍️ _TO FILL (written by me, not by AI)._
+1. **Protect the one answer.** The worst bug is a wrong "Can I get this name?" or a misleading price, so those are tested first, at every door.
+2. **Test the shared brain most, the screens lightly.** All four doors call the same Domain Search service, so most checks run fast at the API; each web door gets a few tests that compare the screen with the server's answer.
+3. **Make the doors agree.** The same name must get the same verdict from the API, the storefront, the name generator and WHOIS; any disagreement is a P0.
+4. **Assert rules, not data.** Prices, suggestions and availability change by time and country, so tests use a stable taken name, a fresh random free name, and rules like "every result ends in .com"; known bugs stay visible as expected failures.
+5. **Run in layers.** API tests on every PR, UI tests nightly, and a production check every 5 minutes (a taken and a free name, from more than one country) that alerts on a wrong answer or pricing errors.
