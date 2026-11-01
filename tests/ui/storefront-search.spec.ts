@@ -1,7 +1,9 @@
+// Playwright's test tools, the test domain names, and the purchase blocker.
 import { test, expect, type Page } from '@playwright/test';
 import { TAKEN_DOMAIN, randomFreeDomain } from '../../src/data/testDomains';
 import { blockPurchaseFlow } from '../../src/ui/blockPurchase';
 
+// Before every test: block checkout, cart and payment pages (safety net).
 test.beforeEach(async ({ context }) => {
   await blockPurchaseFlow(context);
 });
@@ -14,35 +16,47 @@ async function searchFromStorefront(page: Page, term: string) {
   // The HTML arrives before the page's code is running, and a click that early does nothing.
   // The page's code calls display-prices as soon as it starts, so that call means "ready".
   const pageCodeRunning = page.waitForResponse((r) => r.url().includes('/display-prices'));
+  // Open the storefront, then wait until its code is running.
   await page.goto('https://www.wix.com/domains');
   await pageCodeRunning;
 
+  // Start listening for the two answers the results page is built from, before searching.
   const availability = page.waitForResponse((r) => r.url().includes('/domain-search/v2/check-domain-availability'));
   const suggestions = page.waitForResponse((r) => r.url().includes('/domain-search/v2/suggest-domains'));
 
+  // Type the name, click Search Domains, and check that the results page opened.
   await page.getByRole('searchbox', { name: 'Type the domain you want' }).first().fill(term);
   await page.getByRole('button', { name: 'Search Domains' }).first().click();
   await expect(page).toHaveURL(/\/domain\/result\/\?q=/);
 
+  // Hand both backend answers back to the test.
   return { availability: await availability, suggestions: await suggestions };
 }
 
+// The storefront tests: a taken name and a free name.
 test.describe('Domain storefront search', () => {
+  // google.com: shown as taken, with other names to choose from.
   test('a registered domain is shown as taken, with alternatives', async ({ page }) => {
+    // Search for google.com from the storefront.
     const { availability, suggestions } = await searchFromStorefront(page, TAKEN_DOMAIN);
 
+    // The backend said "taken", and the screen says "google.com is already registered".
     expect((await availability.json()).availability.available).toBe(false);
     await expect(page.getByText(`${TAKEN_DOMAIN} is already registered`)).toBeVisible();
 
     // Suggestions are generated, so take the first one from the response instead of hard-coding it.
     const firstAlternative = (await suggestions.json()).suggestions[0].domain;
+    // That first suggestion is visible on screen.
     await expect(page.getByText(firstAlternative, { exact: true }).filter({ visible: true }).first()).toBeVisible();
   });
 
+  // A brand-new random name: shown as available, with a yearly price.
   test('a new name is shown as available, with a yearly price', async ({ page }) => {
+    // Make a new random name, and search for it from the storefront.
     const domain = randomFreeDomain();
     const { availability } = await searchFromStorefront(page, domain);
 
+    // The backend said "free", and the screen says "Available now!" and shows the name.
     expect((await availability.json()).availability.available).toBe(true);
     await expect(page.getByText('Available now!')).toBeVisible();
     await expect(page.getByText(domain, { exact: true }).filter({ visible: true }).first()).toBeVisible();
