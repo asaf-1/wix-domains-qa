@@ -22,6 +22,8 @@ export default defineConfig({
       testMatch: ['ui/**/*.spec.ts', 'cross-door/**/*.spec.ts'],
       // Live production marketing pages: one retry absorbs a slow load; the report still marks it flaky.
       retries: 1,
+      // These pages load many third-party scripts; 30s (the default) is too tight for load + search.
+      timeout: 60_000,
       use: { ...devices['Desktop Chrome'], locale: 'en-US', trace: 'retain-on-failure' },
     },
   ],
