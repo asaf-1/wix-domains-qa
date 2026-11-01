@@ -1,7 +1,6 @@
 # Wix Domains: QA home assignment
 
-**Time spent:** ✍️ _TO FILL: total, e.g. "3h 10m = 40m prep (account, API key, plan) + 16:01–18:31 on 2026-11-01"._
-The commit log shows the clock part.
+**Time spent:** ✍️ _TO FILL: prep before the first commit + build (16:01 to my last commit, see the commit log) + my review time._
 
 How Wix answers "Can I get this name?" through four doors, and how I'd own its quality.
 
@@ -44,7 +43,7 @@ and the auth tests still run.
 - The tests run against **production**.
 - Prices and some suggestions depend on where you run from. The tests check formats and rules,
   not amounts, so they pass from anywhere.
-- One full run makes about **27 public API calls**. The whole assignment used about 110.
+- One full run makes about **27 public API calls**. Building this repo (exploration + test runs) used about 85.
 
 ## What I automated, and why
 
