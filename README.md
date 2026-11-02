@@ -89,24 +89,18 @@ evidence/                       screenshots used in FINDINGS.md
 
 ## With another week
 
-1. **CI:** API tests on every PR, UI tests nightly, the key stored as a GitHub secret, and the HTML report
-   kept as an artifact.
-2. **Two locations** (Israel + US runners): currency, TLD order and `.co.il` suggestions, and the same price
-   for the same domain across doors.
-3. **Deeper name generator and WHOIS tests:** "Generate more names" never repeats a name, offensive input is
-   handled, and WHOIS dates are checked against the public RDAP record for many TLDs, not just .com.
-4. **Fault-injection UI tests:** block the pricing, labels and suggest calls one at a time. This turns
-   finding #2 into a regression test.
-5. **Schema checks** built from the published docs. They would have caught `UNKNOWN_PREMIUM_TYPE` automatically.
-6. **Logged-in flows** with my own account, and the premium-domain price display.
-7. **Accessibility (axe) and a mobile viewport.**
-8. **A production monitor:** a known-taken name and a random free name every 5 minutes, with an alert on a
-   wrong answer.
+1. **More API coverage:** extend the API tests beyond domains; if the scope stays domains only, add more UI and API checks on search results and search options.
+2. **Currencies and regions:** test how the site behaves with different currencies and regions.
+3. **Deeper name generator and WHOIS tests:** more complex prompts for the name generator.
+4. **Test suites:** add smoke, sanity and end-to-end suites, each with positive and negative tests.
+5. **Nightly CI run:** the API tests run automatically every night.
 
-##  My quality strategy for Wix Domains, in 5 lines
 
-1. **Protect the one answer.** The worst bug is a wrong "Can I get this name?" or a misleading price, so those are tested first, at every door.
-2. **Test the shared brain most, the screens lightly.** All four doors call the same Domain Search service, so most checks run fast at the API; each web door gets a few tests that compare the screen with the server's answer.
-3. **Make the doors agree.** The same name must get the same verdict from the API, the storefront, the name generator and WHOIS; any disagreement is a P0.
-4. **Assert rules, not data.** Prices, suggestions and availability change by time and country, so tests use a stable taken name, a fresh random free name, and rules like "every result ends in .com"; known bugs stay visible as expected failures.
-5. **Run in layers.** API tests on every PR, UI tests nightly, and a production check every 5 minutes (a taken and a free name, from more than one country) that alerts on a wrong answer or pricing errors.
+## My quality strategy for Wix Domains, in 5 lines
+
+1. **Customer first:** test what users do most on the domain pages, which is checking if a name is free and what it costs.
+2. **Same answer everywhere:** all four doors use the same Domain Search service, so they must give the same answer for the same name.
+3. **Run in layers:** API tests on every PR, browser tests every night, and a live check every 5 minutes that alerts on a wrong answer or price.
+4. **Stable tests:** no sleeps, no forced clicks, and no data shared between tests.
+5. **Clear output:** every test prints a [RESULT] block with what it expected and what it got, and every code block has a plain-English comment.
+
