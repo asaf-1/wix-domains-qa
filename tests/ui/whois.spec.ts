@@ -19,9 +19,9 @@ test.afterEach(({ page }, testInfo) => printResultBlock(testInfo, page.url()));
 
 // These tests open the results page that the WHOIS search box leads to (see ARCHITECTURE.md).
 test.describe('WHOIS lookup', () => {
-  // google.com: the screen says "is registered" and shows its real creation date.
+  // google.com: the screen says "is registered" (or "is taken") and shows its real creation date.
   test('a registered domain shows its WHOIS record', async ({ page, timezoneId }) => {
-    expected(`record says created 1997-09-15, page shows "${TAKEN_DOMAIN} is registered" and "September 15, 1997"`);
+    expected(`record says created 1997-09-15, page shows "${TAKEN_DOMAIN} is registered" or "is taken", and "September 15, 1997"`);
     fact('domain', TAKEN_DOMAIN);
     // Start listening for the parsed WHOIS record, then open the WHOIS page for google.com.
     const parsed = page.waitForResponse((r) => r.url().includes('/structured-domain-info/parse-rdap'));
@@ -31,8 +31,8 @@ test.describe('WHOIS lookup', () => {
     fact('created', domainInfo.created);
     fact('timezone', timezoneId);
 
-    // The headline says google.com is registered.
-    await expect(page.getByText(`${TAKEN_DOMAIN} is registered`)).toBeVisible();
+    // The headline says google.com is registered. Wix sometimes shows "is taken" instead (an A/B test).
+    await expect(page.getByText(new RegExp(`${TAKEN_DOMAIN} is (registered|taken)`))).toBeVisible();
     // The screen must show the creation date from the public RDAP record: 1997-09-15 for google.com.
     expect(domainInfo.created).toMatch(/^1997-09-15/);
     await expect(page.getByText('September 15, 1997')).toBeVisible();
