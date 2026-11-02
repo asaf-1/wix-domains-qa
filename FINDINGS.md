@@ -1,8 +1,9 @@
 # Findings
 
-Found on 2026-11-01, from Israel, logged out, in Chrome and with curl. Each one was reproduced at least twice.
+Found on 2026-11-01, from Israel, logged out, in Chrome and with curl. Each of the 5 findings was reproduced at least twice.
 Nothing here is invented, and expected behavior (redacted WHOIS, unsupported TLDs, prices by location)
 is not reported as a bug.
+
 
 **Severity** = how bad it is for the user or for Wix when it happens: High · Medium · Low.
 **Priority** = how soon I'd fix it: **P1** this sprint · **P2** next sprint · **P3** backlog.
@@ -178,6 +179,10 @@ every suggestion, and shows its users only the first page. The workaround is to 
   Sep 14, 2028. With the browser set to Los Angeles, it shows **Sep 14, 1997 and Sep 13, 2028**.
   Registries record dates in UTC, so an American visitor sees the *expiry* a day early, and a different date
   than other WHOIS tools show. Low severity; I'd show UTC dates. (The WHOIS test pins UTC.)
+- **The WHOIS headline changes between visits.** For google.com, the page usually says "google.com is
+  registered". Once, during a test run, it said "google.com is taken. A broker might be able to get it for
+  you." with a **Hire a Broker** button. It looks like an A/B test. Both headlines are correct, so the WHOIS
+  test accepts either one.
 - **Wasted calls on every visit:**
   - Every logged-out search calls `user_domains`, which returns **401**.
   - The storefront and WHOIS pages call `getUserDetails` on a path that returns **404** on every load.
