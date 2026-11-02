@@ -94,6 +94,7 @@ evidence/                       screenshots used in FINDINGS.md
 3. **Deeper name generator and WHOIS tests:** more complex prompts for the name generator.
 4. **Test suites:** add smoke, sanity and end-to-end suites, each with positive and negative tests.
 5. **Nightly CI run:** the API tests run automatically every night.
+6. **Logged-in flows:** test with my own Wix account, because some calls change for logged-in users.
 
 
 ## My quality strategy for Wix Domains, in 5 lines
